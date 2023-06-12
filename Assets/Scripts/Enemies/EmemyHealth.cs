@@ -5,6 +5,7 @@ using UnityEngine;
 public class EmemyHealth : MonoBehaviour
 {
     [SerializeField] private int strartingHealth = 3;
+    [SerializeField] private GameObject deadVFXPrefab;
     public int currentHealth;
     private KnockBack knockback;
     private Flash flash;
@@ -34,6 +35,7 @@ public class EmemyHealth : MonoBehaviour
     private void DetectDeath(){
         if (currentHealth <= 0)
         {
+            Instantiate(deadVFXPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject); 
         }
     }

@@ -8,11 +8,13 @@ public class Sword : MonoBehaviour
     [SerializeField] private GameObject slashAnimPrefab;
     [SerializeField] private Transform SlashAnimSpawPoint;
     [SerializeField] private Transform weaponCollider;
+    [SerializeField] private float swordAttackCD = .5f;
     private PlayerControll playerControll;
     private PlayerController playerController;
     private Animator myAnimator;
     private ActiveWeapon activeWeapon;
     private GameObject slashAnim;
+    private bool attackButtonDown, isAttacking = false;
 
     private void Awake()
     {
@@ -27,24 +29,45 @@ public class Sword : MonoBehaviour
     }
     void Start()
     {
-        playerControll.Combat.Attack.started += _ => Attack();
+        playerControll.Combat.Attack.started += _ => StatrAttacking();
+        playerControll.Combat.Attack.canceled += _ => StopAttacking();
     }
 
     private void Update()
     {
-        MouseFollowWithOffset();
+        MouseFollowWithOffset(); 
+        Attack();
     }
     // Update is called once per frame
+  private void StatrAttacking()
+    {
+        attackButtonDown = true;
+    }
+
+    private void StopAttacking()
+    {
+        attackButtonDown = false;
+    }
 
     private void Attack()
     {
+        if (attackButtonDown && !isAttacking)
+        {
+        isAttacking = true;
         myAnimator.SetTrigger("Attack");
         // when attack then game object of weaponCollider will running
         weaponCollider.gameObject.SetActive(true);
         slashAnim = Instantiate(slashAnimPrefab, SlashAnimSpawPoint.position, Quaternion.identity);
         slashAnim.transform.parent = this.transform.parent;
+        StartCoroutine(AttackCDRouting());
+        }
 
     }
+
+    private IEnumerator AttackCDRouting(){
+        yield return new WaitForSeconds(swordAttackCD);
+        isAttacking = false;
+    }    
 
     // add vào function của animation để xác nhận animation đã dừng 
     public void DoneAttackingAnimEvent()
